@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>❤️ Feliz Dia dos Namorados ❤️</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html,body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#000;
+    font-family:Arial,sans-serif;
+    touch-action:manipulation;
+}
+
+canvas{
+    position:fixed;
+    inset:0;
+}
+
+#message{
+    position:fixed;
+    left:50%;
+    top:78%;
+    transform:translateX(-50%);
+    width:90%;
+    text-align:center;
+    color:#ff0040;
+    font-weight:bold;
+    font-size:clamp(22px,6vw,42px);
+    opacity:0;
+    transition:.5s;
+    z-index:999;
+    text-shadow:
+        0 0 10px #ff0040,
+        0 0 20px #ff0040,
+        0 0 40px #ff0040;
+}
+</style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+
+<div id="message"></div>
+
+<script>
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+function resize(){
+    canvas.width = innerWidth;
+    canvas.height = innerHeight;
+}
+resize();
+addEventListener("resize",resize);
+
+const particles = [];
+const totalParticles = 1400;
+
+for(let i=0;i<totalParticles;i++){
+
+    const t = Math.random()*Math.PI*2;
+
+    const hx = 16*Math.pow(Math.sin(t),3);
+
+    const hy =
+        13*Math.cos(t)
+        -5*Math.cos(2*t)
+        -2*Math.cos(3*t)
+        -Math.cos(4*t);
+
+    particles.push({
+
+        x:Math.random()*innerWidth,
+        y:Math.random()*innerHeight,
+
+        tx:hx,
+        ty:hy,
+
+        size:Math.random()*2+1
+    });
+}
+
+const start = Date.now();
+
+function animate(){
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    const elapsed = Date.now()-start;
+
+    const scale =
+        Math.min(innerWidth,innerHeight)/34;
+
+    const pulse =
+        1 + Math.sin(elapsed/500)*0.05;
+
+    particles.forEach(p=>{
+
+        const targetX =
+            innerWidth/2 +
+            p.tx*scale*pulse;
+
+        const targetY =
+            innerHeight/2 -
+            p.ty*scale*pulse;
+
+        p.x += (targetX-p.x)*0.03;
+        p.y += (targetY-p.y)*0.03;
+
+        ctx.beginPath();
+        ctx.arc(
+            p.x,
+            p.y,
+            p.size,
+            0,
+            Math.PI*2
+        );
+
+        ctx.fillStyle="#ff0033";
+        ctx.shadowBlur=15;
+        ctx.shadowColor="#ff0033";
+        ctx.fill();
+    });
+
+    requestAnimationFrame(animate);
+}
+
+animate();
+
+const frases = [
+"Eu te amo ❤️",
+"Você é meu mundo ❤️",
+"Meu coração é seu ❤️",
+"Feliz Dia dos Namorados ❤️",
+"Você ilumina minha vida ❤️",
+"Para sempre nós ❤️",
+"Meu amor eterno ❤️",
+"Seu sorriso me encanta ❤️",
+"Você é meu sonho realizado ❤️",
+"Com você tudo é melhor ❤️"
+];
+
+const message = document.getElementById("message");
+
+function mostrarFrase(){
+
+    message.innerHTML =
+        frases[Math.floor(Math.random()*frases.length)];
+
+    message.style.opacity = 1;
+
+    clearTimeout(window.fraseTimer);
+
+    window.fraseTimer = setTimeout(()=>{
+        message.style.opacity = 0;
+    },3000);
+}
+
+function criarExplosao(x,y){
+
+    for(let i=0;i<18;i++){
+
+        const p = document.createElement("div");
+
+        p.style.position="fixed";
+        p.style.left=x+"px";
+        p.style.top=y+"px";
+        p.style.color="#ff0033";
+        p.style.fontSize="18px";
+        p.style.pointerEvents="none";
+        p.style.zIndex="999";
+
+        p.innerHTML="❤️";
+
+        document.body.appendChild(p);
+
+        const angle=Math.random()*360;
+        const dist=50+Math.random()*80;
+
+        p.animate([
+            {
+                transform:"translate(0,0) scale(1)",
+                opacity:1
+            },
+            {
+                transform:
+                `translate(
+                ${Math.cos(angle)*dist}px,
+                ${Math.sin(angle)*dist}px
+                ) scale(0)`,
+                opacity:0
+            }
+        ],{
+            duration:900,
+            easing:"ease-out"
+        });
+
+        setTimeout(()=>p.remove(),900);
+    }
+}
+
+function posicaoSegura(){
+
+    let x,y;
+
+    do{
+
+        x=Math.random()*innerWidth;
+        y=Math.random()*innerHeight;
+
+        const dx=x-innerWidth/2;
+        const dy=y-innerHeight/2;
+
+    }while(Math.sqrt(dx*dx+dy*dy)<220);
+
+    return {x,y};
+}
+
+function criarBalao(){
+
+    const pos = posicaoSegura();
+
+    const b=document.createElement("div");
+
+    b.style.position="fixed";
+    b.style.left=pos.x+"px";
+    b.style.top=pos.y+"px";
+
+    b.style.width="42px";
+    b.style.height="54px";
+
+    b.style.borderRadius="50%";
+
+    b.style.background=
+    "radial-gradient(circle at 30% 30%,#ffb3c1,#ff4d6d 35%,#ff0033 70%,#99001f)";
+
+    b.style.boxShadow=
+    "0 0 15px #ff0033,0 0 30px #ff0033";
+
+    b.style.zIndex="50";
+    b.style.cursor="pointer";
+
+    const brilho=document.createElement("div");
+
+    brilho.style.position="absolute";
+    brilho.style.width="10px";
+    brilho.style.height="15px";
+    brilho.style.left="9px";
+    brilho.style.top="8px";
+    brilho.style.borderRadius="50%";
+    brilho.style.background="rgba(255,255,255,.8)";
+
+    b.appendChild(brilho);
+
+    const corda=document.createElement("div");
+
+    corda.style.position="absolute";
+    corda.style.width="1px";
+    corda.style.height="30px";
+    corda.style.background="rgba(255,255,255,.7)";
+    corda.style.left="50%";
+    corda.style.top="54px";
+
+    b.appendChild(corda);
+
+    document.body.appendChild(b);
+
+    let t=Math.random()*10;
+
+    function flutuar(){
+
+        t+=0.03;
+
+        b.style.transform=
+        `translateY(${Math.sin(t)*10}px)
+         rotate(${Math.sin(t)*4}deg)`;
+
+        if(document.body.contains(b))
+            requestAnimationFrame(flutuar);
+    }
+
+    flutuar();
+
+    b.addEventListener("click",()=>{
+
+        mostrarFrase();
+
+        criarExplosao(
+            pos.x+20,
+            pos.y+20
+        );
+
+        b.animate([
+            {
+                transform:"scale(1)",
+                opacity:1
+            },
+            {
+                transform:"scale(2)",
+                opacity:0
+            }
+        ],{
+            duration:500
+        });
+
+        setTimeout(()=>{
+            b.remove();
+            criarBalao();
+        },500);
+    });
+}
+
+for(let i=0;i<10;i++){
+    criarBalao();
+}
+
+</script>
+
+</body>
+</html>
